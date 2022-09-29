@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Application.Settings;
+using Application.Common.Settings;
 using Domain.Entities;
 using Infrastructure.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

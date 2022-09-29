@@ -1,4 +1,4 @@
-﻿using Application.Settings;
+﻿using Application.Common.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 

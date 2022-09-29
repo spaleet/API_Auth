@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Application.Models;
+namespace Application.Common.Models;
 
 public class JwtTokenResponse
 {

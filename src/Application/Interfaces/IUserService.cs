@@ -2,4 +2,5 @@
 
 public interface IUserService
 {
+    Task RegisterAsync(RegisterAccountRequest model);
 }
