@@ -4,5 +4,5 @@ public interface ITokenFactoryService
 {
     Task<JwtTokenResponse> CreateJwtTokenAsync(User user);
 
-    string GetRefreshTokenSerial(string refreshTokenValue);
+    string? GetRefreshTokenSerial(string refreshTokenValue);
 }
