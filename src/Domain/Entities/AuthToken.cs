@@ -8,7 +8,7 @@ public class AuthToken
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public string UserId { get; set; }
+    public Guid UserId { get; set; }
 
     public string AccessTokenHash { get; set; }
 
