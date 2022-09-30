@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Api.Filters;
 using Application.Common.Settings;
 using Domain.Entities;
 using Infrastructure.Context;
@@ -7,11 +8,75 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceRegistery
 {
+    public static void ConfigureControllers(this IServiceCollection services)
+    {
+        services.AddRouting(options =>
+        {
+            options.LowercaseUrls = true;
+        });
+
+        services.AddControllers(options => options.Filters.Add<ApiExceptionFilterAttribute>());
+    }
+
+    public static void ConfigureApiVersioning(this IServiceCollection services)
+    {
+        services.AddApiVersioning(options =>
+        {
+            // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
+            options.ReportApiVersions = true;
+        });
+
+        services.AddVersionedApiExplorer(options =>
+        {
+            // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+            // note: the specified format code will format the version as "'v'major[.minor][-status]"
+            options.GroupNameFormat = "'v'VVV";
+
+            // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+            // can also be used to control the format of the API version in route templates
+            options.SubstituteApiVersionInUrl = true;
+        });
+    }
+
+    public static void ConfigureSwagger(this IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Auth", Version = "v1" });
+
+            //c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            //{
+            //    Name = "Authorization",
+            //    In = ParameterLocation.Header,
+            //    Type = SecuritySchemeType.ApiKey,
+            //    Scheme = "Bearer",
+            //    BearerFormat = "JWT",
+            //    Description = "Input your Bearer token in this format - Bearer {your token here} to access this API",
+            //});
+            //c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            //    {
+            //        {
+            //            new OpenApiSecurityScheme
+            //            {
+            //                Reference = new OpenApiReference
+            //                {
+            //                    Type = ReferenceType.SecurityScheme,
+            //                    Id = "Bearer"
+            //                }
+            //            }, new List<string>()
+            //        },
+            //    });
+        });
+    }
+
     public static void ConfigureDb(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<DatabaseContext>(
