@@ -19,6 +19,6 @@ public class AuthController : ControllerBase
     {
         await _userService.RegisterAsync(model);
 
-        return Ok();
+        return Ok("User created successfully.");
     }
 }

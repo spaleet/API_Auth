@@ -14,7 +14,7 @@ public class UserService : IUserService
     {
         var userWithSameEmail = await _userManager.FindByEmailAsync(model.Email);
 
-        if (userWithSameEmail != null)
+        if (userWithSameEmail is not null)
             throw new ApiException("Email is not valid.");
 
         var user = new User

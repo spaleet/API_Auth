@@ -1,9 +1,11 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Api.Filters;
 using Application.Common.Settings;
+using Application.Interfaces;
+using Application.Services;
 using Domain.Entities;
 using Infrastructure.Context;
+using Infrastructure.Seeds;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +18,9 @@ public static class ServiceRegistery
 {
     public static void ConfigureControllers(this IServiceCollection services)
     {
-        services.AddRouting(options =>
-        {
-            options.LowercaseUrls = true;
-        });
+        services.AddRouting(options => options.LowercaseUrls = true);
 
-        services.AddControllers(options => options.Filters.Add<ApiExceptionFilterAttribute>());
+        services.AddControllers();
     }
 
     public static void ConfigureApiVersioning(this IServiceCollection services)
@@ -82,6 +81,10 @@ public static class ServiceRegistery
         services.AddDbContext<DatabaseContext>(
             opts => opts.UseSqlServer(connectionString,
             b => b.MigrationsAssembly("Infrastructure")));
+
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetService<DatabaseContext>());
+
+        services.AddScoped<DatabaseContextInitializer>();
     }
 
     public static void ConfigureIdentity(this IServiceCollection services)
@@ -160,6 +163,15 @@ public static class ServiceRegistery
                     }
                 };
             });
+    }
+
+    public static void ConfigureServices(this IServiceCollection services)
+    {
+        services.AddTransient<IUserService, UserService>();
+        services.AddTransient<ISecurityService, SecurityService>();
+        services.AddTransient<ITokenFactoryService, TokenFactoryService>();
+        services.AddTransient<ITokenStoreService, TokenStoreService>();
+        services.AddTransient<ITokenValidatorService, TokenValidatorService>();
     }
 
     private static string ProduceUnAuthorizedResponse()

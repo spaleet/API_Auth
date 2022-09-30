@@ -8,8 +8,12 @@ builder.Services.ConfigureDb(builder.Configuration.GetConnectionString("SqlConne
 builder.Services.ConfigureIdentity();
 
 builder.Services.ConfigureAuth(builder.Configuration);
+builder.Services.ConfigureServices();
 
 var app = builder.Build();
+
+await app.UseDbInitializer();
+app.UseApiExceptionHandling();
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>
