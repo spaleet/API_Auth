@@ -21,4 +21,12 @@ public class AuthController : ControllerBase
 
         return Ok("User created successfully.");
     }
+
+    [HttpPost("authenticate")]
+    public async Task<IActionResult> Authenticate([FromForm] AuthenticateUserRequest login)
+    {
+        var result = await _userService.AuthenticateUserAsync(login);
+
+        return Ok(result);
+    }
 }
