@@ -4,7 +4,7 @@ public interface ITokenStoreService
 {
     Task AddUserToken(AuthToken userToken);
 
-    Task AddUserToken(User user, string refreshTokenSerial, string accessToken, string refreshTokenSourceSerial);
+    Task AddUserToken(User user, string refreshTokenSerial, string accessToken, string refreshTokenSourceSerial = null);
 
     Task<bool> IsValidToken(string accessToken, Guid userId);
 

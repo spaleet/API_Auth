@@ -6,9 +6,10 @@ public class UserService : IUserService
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
-    private readonly TokenFactoryService _tokenFactoryService;
-    private readonly TokenStoreService _tokenStoreService;
-    public UserService(UserManager<User> userManager, SignInManager<User> signInManager, TokenFactoryService tokenFactoryService, TokenStoreService tokenStoreService)
+    private readonly ITokenFactoryService _tokenFactoryService;
+    private readonly ITokenStoreService _tokenStoreService;
+
+    public UserService(UserManager<User> userManager, SignInManager<User> signInManager, ITokenFactoryService tokenFactoryService, ITokenStoreService tokenStoreService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -45,15 +46,15 @@ public class UserService : IUserService
         var user = await _userManager.FindByEmailAsync(model.Email);
 
         if (user is null)
-            throw new ApiException("No user was found.");
+            throw new NotFoundException("No user was found.");
 
         var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, lockoutOnFailure: false);
 
         if (!result.Succeeded)
-            throw new ApiException("No user was found.");
+            throw new ApiException("Authentication failed.");
 
         var token = await _tokenFactoryService.CreateJwtTokenAsync(user);
-        await _tokenStoreService.AddUserToken(user, token.RefreshTokenSerial, token.AccessToken, null);
+        await _tokenStoreService.AddUserToken(user, token.RefreshTokenSerial, token.AccessToken);
 
         return new AuthenticateUserResponse(token);
     }

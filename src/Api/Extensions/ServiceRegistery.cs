@@ -1,9 +1,9 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Application.Common.Settings;
-using Application.Interfaces;
 using Application.Services;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Context;
 using Infrastructure.Seeds;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,28 +51,28 @@ public static class ServiceRegistery
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Auth", Version = "v1" });
 
-            //c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            //{
-            //    Name = "Authorization",
-            //    In = ParameterLocation.Header,
-            //    Type = SecuritySchemeType.ApiKey,
-            //    Scheme = "Bearer",
-            //    BearerFormat = "JWT",
-            //    Description = "Input your Bearer token in this format - Bearer {your token here} to access this API",
-            //});
-            //c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            //    {
-            //        {
-            //            new OpenApiSecurityScheme
-            //            {
-            //                Reference = new OpenApiReference
-            //                {
-            //                    Type = ReferenceType.SecurityScheme,
-            //                    Id = "Bearer"
-            //                }
-            //            }, new List<string>()
-            //        },
-            //    });
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                Description = "Input your Bearer token in this format - Bearer {your token here} to access this API",
+            });
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        }, new List<string>()
+                    },
+                });
         });
     }
 
@@ -98,7 +98,6 @@ public static class ServiceRegistery
             options.Password.RequiredLength = 4;
             options.Password.RequiredUniqueChars = 0;
             options.User.RequireUniqueEmail = true;
-            options.SignIn.RequireConfirmedEmail = true;
         })
             .AddEntityFrameworkStores<DatabaseContext>()
             .AddDefaultTokenProviders();
@@ -163,6 +162,12 @@ public static class ServiceRegistery
                     }
                 };
             });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(nameof(Roles.BasicUser), policy => policy.RequireRole(nameof(Roles.BasicUser)));
+            options.AddPolicy(nameof(Roles.Admin), policy => policy.RequireRole(nameof(Roles.Admin)));
+        });
     }
 
     public static void ConfigureServices(this IServiceCollection services)

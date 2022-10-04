@@ -31,16 +31,17 @@ public class TokenStoreService : ITokenStoreService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task AddUserToken(User user, string refreshTokenSerial, string accessToken, string refreshTokenSourceSerial)
+    public async Task AddUserToken(User user, string refreshTokenSerial, string accessToken, string refreshTokenSourceSerial = null)
     {
         var now = DateTimeOffset.UtcNow;
+
+        string? refreshSourceSerial = string.IsNullOrWhiteSpace(refreshTokenSourceSerial) ? null : _securityService.GetSha256Hash(refreshTokenSourceSerial);
+
         var token = new AuthToken
         {
             UserId = user.Id,
             RefreshTokenIdHash = _securityService.GetSha256Hash(refreshTokenSerial),
-            RefreshTokenIdHashSource = string.IsNullOrWhiteSpace(refreshTokenSourceSerial) ?
-                                       null : _securityService.GetSha256Hash(refreshTokenSourceSerial),
-
+            RefreshTokenIdHashSource = refreshSourceSerial,
             AccessTokenHash = _securityService.GetSha256Hash(accessToken),
             RefreshTokenExpiresDateTime = now.AddMinutes(_tokenSettings.RefreshTokenExpirationHours),
             AccessTokenExpiresDateTime = now.AddMinutes(_tokenSettings.AccessTokenExpirationMinutes)

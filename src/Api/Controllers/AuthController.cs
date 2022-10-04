@@ -1,12 +1,10 @@
-﻿using Application.Common.Models;
+﻿using System.Text.Json;
+using Application.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
-[ApiController]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController : BaseController
 {
     private readonly IUserService _userService;
     public AuthController(IUserService userService)
@@ -25,7 +23,9 @@ public class AuthController : ControllerBase
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate([FromForm] AuthenticateUserRequest login)
     {
-        var result = await _userService.AuthenticateUserAsync(login);
+        var authenticateResult = await _userService.AuthenticateUserAsync(login);
+
+        string result = JsonSerializer.Serialize(authenticateResult);
 
         return Ok(result);
     }
