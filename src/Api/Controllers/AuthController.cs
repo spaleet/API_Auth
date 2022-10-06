@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Security.Claims;
+using System.Text.Json;
 using Application.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,9 +8,11 @@ namespace Api.Controllers;
 public class AuthController : BaseController
 {
     private readonly IUserService _userService;
-    public AuthController(IUserService userService)
+    private readonly ITokenStoreService _tokenStoreService;
+    public AuthController(IUserService userService, ITokenStoreService tokenStoreService)
     {
         _userService = userService;
+        _tokenStoreService = tokenStoreService;
     }
 
     [HttpPost("register")]
@@ -20,8 +23,8 @@ public class AuthController : BaseController
         return Ok("User created successfully.");
     }
 
-    [HttpPost("authenticate")]
-    public async Task<IActionResult> Authenticate([FromForm] AuthenticateUserRequest login)
+    [HttpPost("sign-in")]
+    public async Task<IActionResult> SignIn([FromBody] AuthenticateUserRequest login)
     {
         var authenticateResult = await _userService.AuthenticateUserAsync(login);
 
@@ -33,8 +36,19 @@ public class AuthController : BaseController
         return Ok(result);
     }
 
+    [HttpPost("sign-out")]
+    public async Task<IActionResult> SignOut([FromBody] RevokeRefreshTokenRequest token)
+    {
+        var claimsIdentity = User.Identity as ClaimsIdentity;
+        string? userId = claimsIdentity?.FindFirst(ClaimTypes.UserData)?.Value;
+
+        await _tokenStoreService.RevokeUserBearerTokens(Guid.Parse(userId), token.RefreshToken);
+
+        return Ok("You've successfully Signed Out!");
+    }
+
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromForm] RevokeRefreshTokenRequest token)
+    public async Task<IActionResult> RefreshToken([FromBody] RevokeRefreshTokenRequest token)
     {
         var refreshTokenResult = await _userService.RevokeTokenAsync(token);
 
@@ -52,6 +66,6 @@ public class AuthController : BaseController
         if (!User.Identity.IsAuthenticated)
             return Unauthorized();
 
-        return Ok("You're Successfully Authorized!");
+        return Ok("You're successfully Authorized!");
     }
 }
