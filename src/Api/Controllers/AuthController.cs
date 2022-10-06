@@ -25,7 +25,10 @@ public class AuthController : BaseController
     {
         var authenticateResult = await _userService.AuthenticateUserAsync(login);
 
-        string result = JsonSerializer.Serialize(authenticateResult);
+        string result = JsonSerializer.Serialize(authenticateResult, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
 
         return Ok(result);
     }

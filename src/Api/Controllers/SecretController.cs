@@ -12,4 +12,11 @@ public class SecretController : BaseController
     {
         return Ok("You can access user secret!");
     }
+
+    [Authorize(Policy = nameof(Roles.Admin))]
+    [HttpGet("admin")]
+    public IActionResult AdminSecret()
+    {
+        return Ok("You can access admin secret!");
+    }
 }

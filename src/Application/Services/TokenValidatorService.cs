@@ -43,7 +43,9 @@ public class TokenValidatorService : ITokenValidatorService
 
         var user = await _userManager.FindByIdAsync(userId);
 
-        if (user is null || user.SerialNumber != serialNumberClaim.Value || !user.EmailConfirmed)
+        // if (user is null || user.SerialNumber != serialNumberClaim.Value || !user.EmailConfirmed)
+
+        if (user is null || user.SerialNumber != serialNumberClaim.Value)
         {
             context.Fail("This token is expired. Please login again.");
             return;

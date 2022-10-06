@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using System.Text.Json;
 using Application.Common.Settings;
 using Application.Services;
@@ -8,6 +9,7 @@ using Infrastructure.Context;
 using Infrastructure.Seeds;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -181,12 +183,26 @@ public static class ServiceRegistery
 
     private static string ProduceUnAuthorizedResponse()
     {
-        return JsonSerializer.Serialize(new { });
+        var problemDetails = new ProblemDetails
+        {
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+            Title = "Un Authorized",
+            Status = (int)HttpStatusCode.Unauthorized,
+            Detail = "Un Authorized!"
+        };
+        return JsonSerializer.Serialize(problemDetails);
     }
 
     private static string ProduceAccessDeniedResponse()
     {
-        return JsonSerializer.Serialize(new { });
+        var problemDetails = new ProblemDetails
+        {
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+            Title = "Access Denied",
+            Status = (int)HttpStatusCode.Forbidden,
+            Detail = "Access Denied!"
+        };
+        return JsonSerializer.Serialize(problemDetails);
     }
 
 }
