@@ -32,4 +32,26 @@ public class AuthController : BaseController
 
         return Ok(result);
     }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromForm] RevokeRefreshTokenRequest token)
+    {
+        var refreshTokenResult = await _userService.RevokeTokenAsync(token);
+
+        string result = JsonSerializer.Serialize(refreshTokenResult, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        return Ok(result);
+    }
+
+    [HttpPost("is-authenticated")]
+    public IActionResult IsAuthenticated()
+    {
+        if (!User.Identity.IsAuthenticated)
+            return Unauthorized();
+
+        return Ok("You're Successfully Authorized!");
+    }
 }

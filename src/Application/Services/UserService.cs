@@ -58,4 +58,28 @@ public class UserService : IUserService
 
         return new AuthenticateUserResponse(token);
     }
+
+    public async Task<AuthenticateUserResponse> RevokeTokenAsync(RevokeRefreshTokenRequest model)
+    {
+        if (string.IsNullOrWhiteSpace(model.RefreshToken))
+            throw new ApiException("Token isn't valid!");
+
+        var token = await _tokenStoreService.FindToken(model.RefreshToken);
+
+        if (token == null)
+            throw new ApiException("Token isn't valid!");
+
+        var user = await _userManager.FindByIdAsync(token.UserId.ToString());
+
+        if (user is null)
+            throw new NotFoundException("No user was found.");
+
+        var jwtResult = await _tokenFactoryService.CreateJwtTokenAsync(user);
+
+        string? refreshTokenSerial = _tokenFactoryService.GetRefreshTokenSerial(model.RefreshToken);
+
+        await _tokenStoreService.AddUserToken(user, jwtResult.RefreshTokenSerial, jwtResult.AccessToken, refreshTokenSerial);
+
+        return new AuthenticateUserResponse(jwtResult);
+    }
 }

@@ -15,8 +15,4 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Common\Wrappers\" />
-  </ItemGroup>
-
 </Project>
