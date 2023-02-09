@@ -8,10 +8,11 @@ public class TokenStoreService : ITokenStoreService
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ISecurityService _securityService;
-    private readonly BearerTokenSettings _tokenSettings;
     private readonly ITokenFactoryService _tokenFactoryService;
+    private readonly BearerTokenSettings _tokenSettings;
 
-    public TokenStoreService(IApplicationDbContext dbContext, ISecurityService securityService, IOptions<BearerTokenSettings> tokenSettings, ITokenFactoryService tokenFactoryService)
+    public TokenStoreService(IApplicationDbContext dbContext, ISecurityService securityService,
+        IOptions<BearerTokenSettings> tokenSettings, ITokenFactoryService tokenFactoryService)
     {
         _dbContext = dbContext;
         _securityService = securityService;
@@ -31,11 +32,14 @@ public class TokenStoreService : ITokenStoreService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task AddUserToken(User user, string refreshTokenSerial, string accessToken, string refreshTokenSourceSerial = null)
+    public async Task AddUserToken(User user, string refreshTokenSerial, string accessToken,
+        string refreshTokenSourceSerial = null)
     {
         var now = DateTimeOffset.UtcNow;
 
-        string? refreshSourceSerial = string.IsNullOrWhiteSpace(refreshTokenSourceSerial) ? null : _securityService.GetSha256Hash(refreshTokenSourceSerial);
+        string? refreshSourceSerial = string.IsNullOrWhiteSpace(refreshTokenSourceSerial)
+            ? null
+            : _securityService.GetSha256Hash(refreshTokenSourceSerial);
 
         var token = new AuthToken
         {
@@ -55,8 +59,8 @@ public class TokenStoreService : ITokenStoreService
         string? accessTokenHash = _securityService.GetSha256Hash(accessToken);
 
         var userToken = await _dbContext.AuthTokens
-                                                   .Where(x => x.AccessTokenHash == accessTokenHash && x.UserId == userId)
-                                                   .FirstOrDefaultAsync();
+            .Where(x => x.AccessTokenHash == accessTokenHash && x.UserId == userId)
+            .FirstOrDefaultAsync();
 
         bool isExpired = userToken?.AccessTokenExpiresDateTime >= DateTimeOffset.UtcNow;
 
@@ -68,8 +72,8 @@ public class TokenStoreService : ITokenStoreService
         var now = DateTimeOffset.UtcNow;
 
         var expiredTokens = await _dbContext.AuthTokens
-                                                       .Where(x => x.RefreshTokenExpiresDateTime < now)
-                                                       .ToListAsync();
+            .Where(x => x.RefreshTokenExpiresDateTime < now)
+            .ToListAsync();
 
         for (int i = 0; i < expiredTokens.Count; i++)
         {
@@ -93,7 +97,7 @@ public class TokenStoreService : ITokenStoreService
         string? refreshTokenIdHash = _securityService.GetSha256Hash(refreshTokenSerial);
 
         return await _dbContext.AuthTokens
-                               .FirstOrDefaultAsync(x => x.RefreshTokenIdHash == refreshTokenIdHash);
+            .FirstOrDefaultAsync(x => x.RefreshTokenIdHash == refreshTokenIdHash);
     }
 
     public async Task DeleteToken(string refreshTokenValue)
@@ -112,9 +116,9 @@ public class TokenStoreService : ITokenStoreService
             return;
 
         var tokens = await _dbContext.AuthTokens.Where(t => t.RefreshTokenIdHashSource == refreshTokenIdHashSource
-                                                            || t.RefreshTokenIdHash == refreshTokenIdHashSource
-                                                            && t.RefreshTokenIdHashSource == null)
-                                                            .ToListAsync();
+                                                            || (t.RefreshTokenIdHash == refreshTokenIdHashSource
+                                                                && t.RefreshTokenIdHashSource == null))
+            .ToListAsync();
 
         for (int i = 0; i < tokens.Count; i++)
         {
@@ -128,8 +132,8 @@ public class TokenStoreService : ITokenStoreService
     public async Task InvalidateUserTokens(Guid userId)
     {
         var tokens = await _dbContext.AuthTokens
-                                                .Where(x => x.UserId == userId)
-                                                .ToListAsync();
+            .Where(x => x.UserId == userId)
+            .ToListAsync();
 
         for (int i = 0; i < tokens.Count; i++)
         {
@@ -164,5 +168,4 @@ public class TokenStoreService : ITokenStoreService
 
         await DeleteExpiredTokens();
     }
-
 }

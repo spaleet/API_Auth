@@ -7,8 +7,8 @@ namespace Application.Services;
 
 public class TokenValidatorService : ITokenValidatorService
 {
-    private readonly UserManager<User> _userManager;
     private readonly ITokenStoreService _tokenStoreService;
+    private readonly UserManager<User> _userManager;
 
     public TokenValidatorService(UserManager<User> userManager, ITokenStoreService tokenStoreService)
     {
@@ -52,7 +52,8 @@ public class TokenValidatorService : ITokenValidatorService
         }
 
 
-        if (context.SecurityToken is not JwtSecurityToken accessToken || string.IsNullOrWhiteSpace(accessToken.RawData) ||
+        if (context.SecurityToken is not JwtSecurityToken accessToken ||
+            string.IsNullOrWhiteSpace(accessToken.RawData) ||
             !await _tokenStoreService.IsValidToken(accessToken.RawData, Guid.Parse(userId)))
         {
             context.Fail("This token is not in our database.");

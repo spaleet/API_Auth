@@ -6,7 +6,9 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class MiddlewareExtensions
 {
     public static IApplicationBuilder UseApiExceptionHandling(this IApplicationBuilder app)
-        => app.UseMiddleware<ApiExceptionHandlingMiddleware>();
+    {
+        return app.UseMiddleware<ApiExceptionHandlingMiddleware>();
+    }
 
     public static async Task UseDbInitializer(this WebApplication app)
     {

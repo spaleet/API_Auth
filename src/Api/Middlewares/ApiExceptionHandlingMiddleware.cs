@@ -1,14 +1,14 @@
-﻿using Application.Common.Exceptions;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
+using Application.Common.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Middlewares;
 
 public class ApiExceptionHandlingMiddleware
 {
-    private readonly RequestDelegate _next;
     private readonly ILogger<ApiExceptionHandlingMiddleware> _logger;
+    private readonly RequestDelegate _next;
 
     public ApiExceptionHandlingMiddleware(RequestDelegate next, ILogger<ApiExceptionHandlingMiddleware> logger)
     {

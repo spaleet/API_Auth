@@ -2,14 +2,16 @@
 using Microsoft.AspNetCore.Identity;
 
 namespace Application.Services;
+
 public class UserService : IUserService
 {
-    private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly ITokenFactoryService _tokenFactoryService;
     private readonly ITokenStoreService _tokenStoreService;
+    private readonly UserManager<User> _userManager;
 
-    public UserService(UserManager<User> userManager, SignInManager<User> signInManager, ITokenFactoryService tokenFactoryService, ITokenStoreService tokenStoreService)
+    public UserService(UserManager<User> userManager, SignInManager<User> signInManager,
+        ITokenFactoryService tokenFactoryService, ITokenStoreService tokenStoreService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -48,7 +50,7 @@ public class UserService : IUserService
         if (user is null)
             throw new NotFoundException("No user was found.");
 
-        var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, lockoutOnFailure: false);
+        var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, false);
 
         if (!result.Succeeded)
             throw new ApiException("Authentication failed.");
@@ -78,7 +80,8 @@ public class UserService : IUserService
 
         string? refreshTokenSerial = _tokenFactoryService.GetRefreshTokenSerial(model.RefreshToken);
 
-        await _tokenStoreService.AddUserToken(user, jwtResult.RefreshTokenSerial, jwtResult.AccessToken, refreshTokenSerial);
+        await _tokenStoreService.AddUserToken(user, jwtResult.RefreshTokenSerial, jwtResult.AccessToken,
+            refreshTokenSerial);
 
         return new AuthenticateUserResponse(jwtResult);
     }

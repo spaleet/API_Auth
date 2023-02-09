@@ -60,21 +60,22 @@ public static class ServiceRegistery
                 Type = SecuritySchemeType.ApiKey,
                 Scheme = "Bearer",
                 BearerFormat = "JWT",
-                Description = "Input your Bearer token in this format - Bearer {your token here} to access this API",
+                Description = "Input your Bearer token in this format - Bearer {your token here} to access this API"
             });
             c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
                 {
+                    new OpenApiSecurityScheme
                     {
-                        new OpenApiSecurityScheme
+                        Reference = new OpenApiReference
                         {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        }, new List<string>()
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
                     },
-                });
+                    new List<string>()
+                }
+            });
         });
     }
 
@@ -82,7 +83,7 @@ public static class ServiceRegistery
     {
         services.AddDbContext<DatabaseContext>(
             opts => opts.UseSqlServer(connectionString,
-            b => b.MigrationsAssembly("Infrastructure")));
+                b => b.MigrationsAssembly("Infrastructure")));
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetService<DatabaseContext>());
 
@@ -92,22 +93,23 @@ public static class ServiceRegistery
     public static void ConfigureIdentity(this IServiceCollection services)
     {
         services.AddIdentity<User, UserRole>(options =>
-        {
-            options.Password.RequireDigit = false;
-            options.Password.RequireLowercase = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequiredLength = 4;
-            options.Password.RequiredUniqueChars = 0;
-            options.User.RequireUniqueEmail = true;
-        })
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 4;
+                options.Password.RequiredUniqueChars = 0;
+                options.User.RequireUniqueEmail = true;
+            })
             .AddEntityFrameworkStores<DatabaseContext>()
             .AddDefaultTokenProviders();
     }
 
     public static void ConfigureAuth(this IServiceCollection services, IConfiguration config)
     {
-        var bearerTokenSettings = config.GetSection("BearerTokenSettings").Get(typeof(BearerTokenSettings)) as BearerTokenSettings;
+        var bearerTokenSettings =
+            config.GetSection("BearerTokenSettings").Get(typeof(BearerTokenSettings)) as BearerTokenSettings;
 
         services.Configure<BearerTokenSettings>(config.GetSection("BearerTokenSettings"));
 
@@ -142,13 +144,11 @@ public static class ServiceRegistery
                     },
                     OnTokenValidated = context =>
                     {
-                        var tokenValidatorService = context.HttpContext.RequestServices.GetRequiredService<ITokenValidatorService>();
+                        var tokenValidatorService =
+                            context.HttpContext.RequestServices.GetRequiredService<ITokenValidatorService>();
                         return tokenValidatorService.ValidateAsync(context);
                     },
-                    OnMessageReceived = context =>
-                    {
-                        return Task.CompletedTask;
-                    },
+                    OnMessageReceived = context => { return Task.CompletedTask; },
                     OnChallenge = context =>
                     {
                         context.HandleResponse();
@@ -204,5 +204,4 @@ public static class ServiceRegistery
         };
         return JsonSerializer.Serialize(problemDetails);
     }
-
 }

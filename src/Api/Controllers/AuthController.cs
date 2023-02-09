@@ -7,8 +7,9 @@ namespace Api.Controllers;
 
 public class AuthController : BaseController
 {
-    private readonly IUserService _userService;
     private readonly ITokenStoreService _tokenStoreService;
+    private readonly IUserService _userService;
+
     public AuthController(IUserService userService, ITokenStoreService tokenStoreService)
     {
         _userService = userService;

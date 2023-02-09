@@ -11,10 +11,10 @@ public class DatabaseContext : IdentityDbContext<User, UserRole, Guid>, IApplica
     {
     }
 
+    public DbSet<AuthToken> AuthTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
     }
-
-    public DbSet<AuthToken> AuthTokens { get; set; }
 }
