@@ -48,7 +48,7 @@ public class TokenStoreService : ITokenStoreService
             RefreshTokenIdHashSource = refreshSourceSerial,
             AccessTokenHash = _securityService.GetSha256Hash(accessToken),
             RefreshTokenExpiresDateTime = now.AddMinutes(_tokenSettings.RefreshTokenExpirationHours),
-            AccessTokenExpiresDateTime = now.AddMinutes(_tokenSettings.AccessTokenExpirationMinutes)
+            AccessTokenExpiresDateTime = now.AddHours(_tokenSettings.AccessTokenExpirationMinutes)
         };
 
         await AddUserToken(token);
